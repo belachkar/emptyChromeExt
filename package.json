@@ -1,7 +1,7 @@
 {
   "name": "emptychromeextproject",
   "version": "0.0.1",
-  "description": "Empty Chrome extencion project to make it easy to start a new project",
+  "description": "Empty Chrome extension project to make it easy to start a new project",
   "main": "index.js",
   "scripts": {
     "clean": "node dev/removeDistFolder",
