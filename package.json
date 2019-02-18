@@ -1,0 +1,28 @@
+{
+  "name": "emptychromeextproject",
+  "version": "0.0.1",
+  "description": "Empty Chrome extencion project to make it easy to start a new project",
+  "main": "index.js",
+  "scripts": {
+    "clean": "node dev/removeDistFolder",
+    "create": "node dev/createDistFolder",
+    "build": "node dev/build",
+    "build-zip": "node build -zipped",
+    "clean-local-modules": "npm uninstall eslint"
+  },
+  "keywords": [
+    "chrome",
+    "extension",
+    "empty"
+  ],
+  "author": "Belachkar Ali",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^4.3.1",
+    "jquery": "^3.3.1",
+    "popper.js": "^1.14.7"
+  },
+  "devDependencies": {
+    "zip-a-folder": "0.0.7"
+  }
+}

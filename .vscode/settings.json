@@ -1,0 +1,16 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "/manifest.json"
+      ],
+      "url": "/schemas/chrome-manifest_schema.json"
+    },
+    {
+      "fileMatch": [
+        "/.eslintrc.js"
+      ],
+      "url": "/schemas/eslintrc_schema.json"
+    }
+  ]
+}
