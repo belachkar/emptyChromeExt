@@ -2,6 +2,8 @@ const path = require('path');
 
 const config = {};
 
+config.cfgProjectName = '';
+config.defaultPrjName = 'myChromeExtProject';
 config.directories = [ 'img', 'js', 'lib' ];
 config.files = [ 'manifest.json' ];
 config.distDirName = 'dist';
