@@ -1,4 +1,5 @@
 const path = require('path');
+
 const zipFolder = require('./zipFolder');
 const { copyDirs, copyFiles, removeDistDir } = require('./fsUtils');
 const { getProjectName } = require('./utils');
@@ -7,12 +8,13 @@ const { directories, files, distDirPath, cfgProjectName, defaultPrjName } = requ
 const handleErr = err => console.error(err.message);
 const dirsPathSrc = path.join(__dirname, '..');
 const filesPath = files.map(fileName => path.join(dirsPathSrc, fileName));
-let DestProjectDirPath = defaultPrjName;
+let DestProjectDirPath = path.join(distDirPath, defaultPrjName);
 let makeZip = false;
 
 const build = {};
 
 build.prjDir = () => {
+
   const init = () => {
     process.argv.forEach((arg) => {
       makeZip = arg === '-zip' || arg === '-z' || arg === '-Z' ? true : makeZip;
@@ -20,23 +22,24 @@ build.prjDir = () => {
 
     if (cfgProjectName) {
       DestProjectDirPath = path.join(distDirPath, cfgProjectName);
+      makeBuild();
     } else {
       getProjectName((err, prjName) => {
         if (!err && prjName) {
           DestProjectDirPath = path.join(distDirPath, prjName);
+          makeBuild();
         } else {
           console.error(err.message);
         }
       });
     }
-    makeBuild();
   };
 
   const makeBuild = () => {
     console.log('# Start building project');
     removeDistDir(distDirPath)
       .then(() => {
-        console.log('## Start creating the new folder project', DestProjectDirPath);
+        console.log('## Start creating the new folder project\n', DestProjectDirPath);
         copyDirs(directories, dirsPathSrc, DestProjectDirPath)
           .then(() => copyFiles(filesPath, DestProjectDirPath)
             .then(() => {

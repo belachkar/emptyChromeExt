@@ -1,3 +1,6 @@
-const files = require('./files');
+const { removeDistDir } = require('./fsUtils');
+const { distDirPath } = require('./config');
 
-files.removeDistFolder();
+const handleErr = err => console.error(err.message);
+
+removeDistDir(distDirPath).then().catch(handleErr);

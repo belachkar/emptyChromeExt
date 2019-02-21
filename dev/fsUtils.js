@@ -7,29 +7,29 @@ const FILE = systemFiles.FILE;
 const DIR = systemFiles.DIR;
 
 const files = {};
+
 const handleErr = err => console.error(err.message);
 
 files.removeDistDir = () => {
   return new Promise((resolve) => {
-    console.log('## Removing distribution directory', distDirPath);
+    console.log('## Removing distribution directory\n', distDirPath);
     isDirExists(distDirPath)
       .then(isDirExists => {
         if (isDirExists) {
           files.removeDirectory(distDirPath)
             .then(() => {
               console.log('## Distribution Directory Removed');
-              resolve();
+              resolve(true);
             })
             .catch(handleErr);
+        } else {
+          console.log('The directory doesn\'t exists', distDirPath);
+          resolve(false);
         }
       })
       .catch(handleErr);
   });
 };
-
-// files.createDistDir = () => createDirectory(distDirPath)
-//   .then()
-//   .catch(handleErr);
 
 files.copyDirs = (directories, dirsPathSrc, dirsPathDest) => {
   return new Promise((resolve, rejecte) => {
@@ -41,7 +41,6 @@ files.copyDirs = (directories, dirsPathSrc, dirsPathDest) => {
         console.log(`Directories copied ${directories.length} dirs\n`, directories);
         resolve();
       } else {
-        console.error();
         errors.forEach(handleErr);
         rejecte(`Failed: Copying folder, with ${errors.length}, errors\n ${distDirPath}`);
       }
@@ -54,7 +53,6 @@ files.copyDirs = (directories, dirsPathSrc, dirsPathDest) => {
       files.copyDir(dirPathSrc, dirPathDest)
         .then(() => {
           count++;
-          // console.log('Success: Folder copied successfully\n', dirPathDest);
         })
         .catch(err => {
           count++;
@@ -93,7 +91,6 @@ files.copyDir = (srcDirPath, destDirPath) => {
                   .then(() => count++)
                   .catch(handleErr)
                   .finally(() => {
-                    // console.log(count, itemsPath);
                     if (count >= itemsPath.length) opCompleted();
                   });
               } else if (isFileDir === DIR) {
@@ -101,7 +98,6 @@ files.copyDir = (srcDirPath, destDirPath) => {
                   .then(() => count++)
                   .catch(handleErr)
                   .finally(() => {
-                    // console.log(count, itemsPath);
                     if (count >= itemsPath.length) opCompleted();
                   });
               }
@@ -125,7 +121,6 @@ files.copyFiles = (listFiles, destDirPath) => {
         resolve();
       } else {
         console.error('Failed: Copying files, with ', errors.length, ' errors\n', listFiles);
-        // errors.forEach(err => console.error(err));
         rejecte();
       }
     };
@@ -135,7 +130,6 @@ files.copyFiles = (listFiles, destDirPath) => {
         isDirOrFile(item)
           .then(isFileDir => {
             if (isFileDir === FILE) {
-              // console.log(item, destDirPath);
               files.copyFile(item, destDirPath)
                 .then()
                 .catch(err => errors.push(err))
@@ -228,7 +222,6 @@ files.removeDirectory = (dirPath) => {
         if (isDirExists) {
           getFilesList(dirPath)
             .then((itemsPath) => {
-              console.log(dirPath, itemsPath.length);
               if (itemsPath.length < 1) {
                 opCompleted();
               } else {
@@ -236,7 +229,6 @@ files.removeDirectory = (dirPath) => {
                   .forEach((itemPath) => isDirOrFile(itemPath)
                     .then(isFileDir => {
                       if (isFileDir === FILE) {
-                        // console.log('File to delete', itemPath);
                         files.removeFile(itemPath)
                           .then(() => count++)
                           .catch(handleErr)
@@ -244,7 +236,6 @@ files.removeDirectory = (dirPath) => {
                             if (count >= itemsPath.length) opCompleted();
                           });
                       } else if (isFileDir === DIR) {
-                        // console.log('Directory to delete', itemPath);
                         files.removeDirectory(itemPath)
                           .then(() => count++)
                           .catch(handleErr)
@@ -270,10 +261,8 @@ const isDirOrFile = (ItemPath) => {
     fsPromises.stat(ItemPath)
       .then(item => {
         if (item.isDirectory()) {
-          // console.log('It is a DIRECTORY', ItemPath);
           resolve(DIR);
         } else if (item.isFile()) {
-          // console.log('It is a FILE', ItemPath);
           resolve(FILE);
         } else {
           rejecte('It\'s not a file or a directory', ItemPath);

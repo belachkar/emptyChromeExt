@@ -16,11 +16,7 @@
   ],
   "author": "Belachkar Ali",
   "license": "ISC",
-  "dependencies": {
-    "bootstrap": "^4.3.1",
-    "jquery": "^3.3.1",
-    "popper.js": "^1.14.7"
-  },
+  "dependencies": {},
   "devDependencies": {
     "zip-a-folder": "0.0.7"
   }
