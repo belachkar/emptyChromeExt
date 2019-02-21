@@ -5,9 +5,8 @@
   "main": "index.js",
   "scripts": {
     "clean": "node dev/removeDistFolder",
-    "create": "node dev/createDistFolder",
     "build": "node dev/build",
-    "build-zip": "node build -zipped",
+    "build-zip": "node dev/build -zip",
     "clean-local-modules": "npm uninstall eslint"
   },
   "keywords": [

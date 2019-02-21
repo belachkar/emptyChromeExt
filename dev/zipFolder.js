@@ -1,23 +1,8 @@
-const path = require('path');
 const zip = require('zip-a-folder');
-const { getProjectName } = require('./utils');
 
-const zipFolder = async () => {
-  getProjectName
-    .then(prjName => {
-      const prjDistPath = path.join('..', 'dist', prjName);
-      const prjDistPathZipped = prjDistPath + '.zip';
-
-      await zip.zip(prjDistPath, prjDistPathZipped);
-    }).catch(err => {
-      
-    });
+const zipFolder = async (prjDirPath) => {
+  const prjDirPathZipped = `${prjDirPath}.zip`;
+  await zip.zip(prjDirPath, prjDirPathZipped);
 };
-
-// class ZipFolder {
-//   static async main() {
-//     await zip.zip(projPath, projPathZipped);
-//   }
-// }
 
 module.exports = zipFolder;

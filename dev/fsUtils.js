@@ -212,6 +212,59 @@ files.removeFile = (srcFilePath) => {
     .catch(handleErr));
 };
 
+files.removeDirectory = (dirPath) => {
+  return new Promise((resolve) => {
+    let count = 0;
+
+    const opCompleted = () => fsPromises.rmdir(dirPath)
+      .then(() => {
+        console.log('Folder removed', dirPath);
+        resolve(dirPath);
+      })
+      .catch(handleErr);
+
+    isDirExists(dirPath)
+      .then(isDirExists => {
+        if (isDirExists) {
+          getFilesList(dirPath)
+            .then((itemsPath) => {
+              console.log(dirPath, itemsPath.length);
+              if (itemsPath.length < 1) {
+                opCompleted();
+              } else {
+                itemsPath
+                  .forEach((itemPath) => isDirOrFile(itemPath)
+                    .then(isFileDir => {
+                      if (isFileDir === FILE) {
+                        // console.log('File to delete', itemPath);
+                        files.removeFile(itemPath)
+                          .then(() => count++)
+                          .catch(handleErr)
+                          .finally(() => {
+                            if (count >= itemsPath.length) opCompleted();
+                          });
+                      } else if (isFileDir === DIR) {
+                        // console.log('Directory to delete', itemPath);
+                        files.removeDirectory(itemPath)
+                          .then(() => count++)
+                          .catch(handleErr)
+                          .finally(() => {
+                            if (count >= itemsPath.length) opCompleted();
+                          });
+                      }
+                    })
+                    .catch(handleErr)
+                  );}
+            })
+            .catch(handleErr);
+        } else {
+          resolve(false);
+        }
+      })
+      .catch(handleErr);
+  });
+};
+
 const isDirOrFile = (ItemPath) => {
   return new Promise((resolve, rejecte) => {
     fsPromises.stat(ItemPath)
@@ -271,59 +324,6 @@ const isFileDirExists = (dirPath) => {
       .catch(err => {
         if (err.code ===  'ENOENT') resolve(false);
       });
-  });
-};
-
-files.removeDirectory = (dirPath) => {
-  return new Promise((resolve) => {
-    let count = 0;
-
-    const opCompleted = () => fsPromises.rmdir(dirPath)
-      .then(() => {
-        console.log('Folder removed', dirPath);
-        resolve(dirPath);
-      })
-      .catch(handleErr);
-
-    isDirExists(dirPath)
-      .then(isDirExists => {
-        if (isDirExists) {
-          getFilesList(dirPath)
-            .then((itemsPath) => {
-              console.log(dirPath, itemsPath.length);
-              if (itemsPath.length < 1) {
-                opCompleted();
-              } else {
-                itemsPath
-                  .forEach((itemPath) => isDirOrFile(itemPath)
-                    .then(isFileDir => {
-                      if (isFileDir === FILE) {
-                        // console.log('File to delete', itemPath);
-                        files.removeFile(itemPath)
-                          .then(() => count++)
-                          .catch(handleErr)
-                          .finally(() => {
-                            if (count >= itemsPath.length) opCompleted();
-                          });
-                      } else if (isFileDir === DIR) {
-                        // console.log('Directory to delete', itemPath);
-                        files.removeDirectory(itemPath)
-                          .then(() => count++)
-                          .catch(handleErr)
-                          .finally(() => {
-                            if (count >= itemsPath.length) opCompleted();
-                          });
-                      }
-                    })
-                    .catch(handleErr)
-                  );}
-            })
-            .catch(handleErr);
-        } else {
-          resolve(false);
-        }
-      })
-      .catch(handleErr);
   });
 };
 
