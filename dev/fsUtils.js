@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { systemFiles , distDirPath } = require('./config');
+const { systemFiles , distDirPath, createAppDir } = require('./config');
 
 const fsPromises = fs.promises;
 const FILE = systemFiles.FILE;
@@ -35,6 +35,8 @@ files.copyDirs = (directories, dirsPathSrc, dirsPathDest) => {
   return new Promise((resolve, rejecte) => {
     const errors = [];
     let count = 0;
+    let dirPathSrc = '';
+    let dirPathDest = '';
 
     const opCompleted = () => {
       if (errors.length < 1) {
@@ -47,9 +49,25 @@ files.copyDirs = (directories, dirsPathSrc, dirsPathDest) => {
     };
 
     directories.forEach((dirName) => {
-      const dirPathSrc = path.join(dirsPathSrc, dirName);
-      const dirPathDest = path.join(dirsPathDest, dirName);
-  
+      dirPathSrc = path.join(dirsPathSrc, dirName);
+      dirPathDest = path.join(dirsPathDest, dirName);      
+      console.log('START');
+      console.log(dirsPathSrc);
+      console.log(dirPathSrc);
+      console.log(dirsPathDest);
+      console.log(dirPathDest);
+      console.log('END');
+      // if (!createAppDir) {
+      const re = /[\\|/]+app$/gi;
+      dirPathDest = dirPathDest.replace(re, '');
+      // console.log(dirPathDest);
+      // }
+      console.log('START');
+      console.log(dirsPathSrc);
+      console.log(dirPathSrc);
+      console.log(dirsPathDest);
+      console.log(dirPathDest);
+      console.log('END');
       files.copyDir(dirPathSrc, dirPathDest)
         .then(() => {
           count++;
@@ -94,7 +112,9 @@ files.copyDir = (srcDirPath, destDirPath) => {
                     if (count >= itemsPath.length) opCompleted();
                   });
               } else if (isFileDir === DIR) {
-                files.copyDir(itemPath, destDirPath)
+                const destDirName = path.basename(itemPath);
+                const newDestDirPath = path.join(destDirPath, destDirName);
+                files.copyDir(itemPath, newDestDirPath)
                   .then(() => count++)
                   .catch(handleErr)
                   .finally(() => {

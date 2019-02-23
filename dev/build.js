@@ -1,15 +1,18 @@
 const path = require('path');
 
 const zipFolder = require('./zipFolder');
+const { fixDependecies } = require('./utils');
 const { copyDirs, copyFiles, removeDistDir } = require('./fsUtils');
 const { getProjectName } = require('./utils');
-const { directories, files, distDirPath, cfgProjectName, defaultPrjName } = require('./config');
+const { directories, files, distDirPath, cfgProjectName, defaultPrjName, jsExtPath, createAppDir, makeZipDefault } = require('./config');
 
 const handleErr = err => console.error(err.message);
 const dirsPathSrc = path.join(__dirname, '..');
 const filesPath = files.map(fileName => path.join(dirsPathSrc, fileName));
-let DestProjectDirPath = path.join(distDirPath, defaultPrjName);
-let makeZip = false;
+const makeAppDir = createAppDir ? 'app' : '';
+let DestProjectDirPath = path.join(distDirPath, defaultPrjName, makeAppDir);
+let destJsDirPath = path.join(DestProjectDirPath, jsExtPath);
+let makeZip = makeZipDefault;
 
 const build = {};
 
@@ -19,17 +22,22 @@ build.prjDir = () => {
     process.argv.forEach((arg) => {
       makeZip = arg === '-zip' || arg === '-z' || arg === '-Z' ? true : makeZip;
     });
-
+    const editProjectName = (newPrjName) => {
+      DestProjectDirPath = path.join(distDirPath, newPrjName, makeAppDir);
+      destJsDirPath = path.join(DestProjectDirPath, jsExtPath);
+    };
     if (cfgProjectName) {
-      DestProjectDirPath = path.join(distDirPath, cfgProjectName);
+      editProjectName(cfgProjectName);
       makeBuild();
     } else {
       getProjectName((err, prjName) => {
         if (!err && prjName) {
-          DestProjectDirPath = path.join(distDirPath, prjName);
+          editProjectName(prjName);
           makeBuild();
         } else {
           console.error(err.message);
+          console.log('Project Name to default:', defaultPrjName);
+          makeBuild();
         }
       });
     }
@@ -43,6 +51,7 @@ build.prjDir = () => {
         copyDirs(directories, dirsPathSrc, DestProjectDirPath)
           .then(() => copyFiles(filesPath, DestProjectDirPath)
             .then(() => {
+              fixDependecies(destJsDirPath, DestProjectDirPath);
               console.log('\n=> Building Operation succeed.');
               if(makeZip) {
                 zipFolder(DestProjectDirPath)
