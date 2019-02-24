@@ -1,20 +1,29 @@
 const path = require('path');
 
-const config = {};
+const cfg = {};
 
-config.createAppDir = false;
-config.makeZipDefault = false;
-config.defaultPrjName = 'myChromeExtProject';
-config.distDirName = 'dist';
-config.cfgProjectName = '';
-config.directories = [ 'app' ];
-config.files = [];
-config.distDirPath = path.join(__dirname, '..', config.distDirName);
-config.jsExtPath = path.join('ext', 'js');
-config.nodeModulesPath = path.join(__dirname, '..', 'node_modules');
-config.systemFiles = {
+cfg.jsonWhiteSpacesCfg = null;
+cfg.distDirName = 'dist';
+cfg.manifestFileName = 'manifest.json';
+cfg.directories = [ 'app' ];
+cfg.files = [];
+cfg.prj = {
+  defaultName: 'myChromeExtProject',
+  name: ''
+};
+cfg.options = {
+  createAppDir: false,
+  makeZip: true
+};
+cfg.paths = {
+  distDir: () => path.join(__dirname, '..', cfg.distDirName),
+  jsExt: () => path.join('ext', 'js'),
+  nodeModules: () => path.join(__dirname, '..', 'node_modules'),
+  manifestFile: () => path.join(__dirname, '..', 'app', cfg.manifestFileName)
+};
+cfg.systemFiles = {
   'DIR': 'DIRECTORY',
   'FILE': 'FILE'
 };
 
-module.exports = config;
+module.exports = cfg;

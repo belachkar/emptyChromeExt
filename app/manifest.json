@@ -19,21 +19,13 @@
       "16": "img/img_16.png"
     }
   },
-  "permissions": [
-    "background",
-    "http://*/*",
-    "https://*/*",
-    "tabs"
-  ],
+  "permissions": [ "background", "http://*/*", "https://*/*", "tabs" ],
   "background": {
-    "scripts": ["./js/bg.js"]
+    "scripts": [ "./js/bg.js" ]
   },
   "content_scripts": [
     {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
+      "matches": [ "http://*/*", "https://*/*" ],
       "js": [
         "../node_modules/jquery/dist/jquery.slim.min.js",
         "../node_modules/popper.js/dist/umd/popper.min.js",

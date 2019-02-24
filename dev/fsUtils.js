@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { systemFiles , distDirPath, createAppDir } = require('./config');
+const { systemFiles , paths } = require('./config');
 
 const fsPromises = fs.promises;
 const FILE = systemFiles.FILE;
@@ -8,22 +8,20 @@ const DIR = systemFiles.DIR;
 
 const files = {};
 
-const handleErr = err => console.error(err.message);
+const handleErr = (err) => console.error(err.message);
 
 files.removeDistDir = () => {
   return new Promise((resolve) => {
-    console.log('## Removing distribution directory\n', distDirPath);
-    isDirExists(distDirPath)
+    isDirExists(paths.distDir())
       .then(isDirExists => {
         if (isDirExists) {
-          files.removeDirectory(distDirPath)
+          files.removeDirectory(paths.distDir())
             .then(() => {
-              console.log('## Distribution Directory Removed');
               resolve(true);
             })
             .catch(handleErr);
         } else {
-          console.log('The directory doesn\'t exists', distDirPath);
+          console.log('The folder doesn\'t exists', paths.distDir());
           resolve(false);
         }
       })
@@ -40,43 +38,24 @@ files.copyDirs = (directories, dirsPathSrc, dirsPathDest) => {
 
     const opCompleted = () => {
       if (errors.length < 1) {
-        console.log(`Directories copied ${directories.length} dirs\n`, directories);
         resolve();
       } else {
         errors.forEach(handleErr);
-        rejecte(`Failed: Copying folder, with ${errors.length}, errors\n ${distDirPath}`);
+        rejecte(`Failed: Copying folder, with ${errors.length}, errors\n ${paths.distDir()}`);
       }
     };
 
     directories.forEach((dirName) => {
-      dirPathSrc = path.join(dirsPathSrc, dirName);
-      dirPathDest = path.join(dirsPathDest, dirName);      
-      console.log('START');
-      console.log(dirsPathSrc);
-      console.log(dirPathSrc);
-      console.log(dirsPathDest);
-      console.log(dirPathDest);
-      console.log('END');
-      // if (!createAppDir) {
       const re = /[\\|/]+app$/gi;
+      dirPathSrc = path.join(dirsPathSrc, dirName);
+      dirPathDest = path.join(dirsPathDest, dirName);
       dirPathDest = dirPathDest.replace(re, '');
-      // console.log(dirPathDest);
-      // }
-      console.log('START');
-      console.log(dirsPathSrc);
-      console.log(dirPathSrc);
-      console.log(dirsPathDest);
-      console.log(dirPathDest);
-      console.log('END');
+      
       files.copyDir(dirPathSrc, dirPathDest)
-        .then(() => {
-          count++;
-        })
-        .catch(err => {
-          count++;
-          errors.push(err.message);
-        })
+        .then()
+        .catch(err => errors.push(err.message))
         .finally(() => {
+          count++;
           if (count >= directories.length) opCompleted();
         });
     });
@@ -90,40 +69,49 @@ files.copyDir = (srcDirPath, destDirPath) => {
 
     const opCompleted = () => {
       if (errors.length < 1) {
-        console.log('Folder copied', destDirPath);
+        console.log('Folder copied\t', destDirPath);
         resolve();
       } else {
-        console.error('Failed: Copying folder, with ', errors.length, ' errors\n', distDirPath);
         errors.forEach(handleErr);
-        rejecte();
+        rejecte(`Failed: Copying folder, with${errors.length} errors\n${paths.distDir()}`);
       }
     };
 
     createDirectory(destDirPath)
       .then(() => getFilesList(srcDirPath)
-        .then((itemsPath) => itemsPath
-          .forEach((itemPath) => isDirOrFile(itemPath)
-            .then(isFileDir => {
-              if (isFileDir === FILE) {
-                files.copyFile(itemPath, destDirPath)
-                  .then(() => count++)
-                  .catch(handleErr)
-                  .finally(() => {
-                    if (count >= itemsPath.length) opCompleted();
-                  });
-              } else if (isFileDir === DIR) {
-                const destDirName = path.basename(itemPath);
-                const newDestDirPath = path.join(destDirPath, destDirName);
-                files.copyDir(itemPath, newDestDirPath)
-                  .then(() => count++)
-                  .catch(handleErr)
-                  .finally(() => {
-                    if (count >= itemsPath.length) opCompleted();
-                  });
-              }
-            })
-            .catch(handleErr)
-          ))
+        .then((itemsPath) => {
+          if (itemsPath.length > 0) {
+            itemsPath
+              .forEach((itemPath) => isDirOrFile(itemPath)
+                .then(isFileDir => {
+                  if (isFileDir === FILE) {
+                    files.copyFile(itemPath, destDirPath)
+                      .then()
+                      .catch(handleErr)
+                      .finally(() => {
+                        count++;
+                        if (count === itemsPath.length) opCompleted();
+                      });
+                  } else if (isFileDir === DIR) {
+                    const destDirName = path.basename(itemPath);
+                    const newDestDirPath = path.join(destDirPath, destDirName);
+                    files.copyDir(itemPath, newDestDirPath)
+                      .then()
+                      .catch(handleErr)
+                      .finally(() => {
+                        count++;
+                        if (count === itemsPath.length) opCompleted();
+                      });
+                  } else {
+                    count++;
+                  }
+                })
+                .catch(handleErr)
+              );
+          } else {
+            resolve();
+          }
+        })
         .catch(handleErr)
       )
       .catch(handleErr);
@@ -140,12 +128,12 @@ files.copyFiles = (listFiles, destDirPath) => {
         console.log(`Files copied ${listFiles.length} files\n`, listFiles);
         resolve();
       } else {
-        console.error('Failed: Copying files, with ', errors.length, ' errors\n', listFiles);
+        console.error('Failed: Copying files, with ', errors.length, ' errors\n', errors);
         rejecte();
       }
     };
 
-    if (Array.isArray(listFiles)) {
+    if (Array.isArray(listFiles) && listFiles.length > 0) {
       listFiles.forEach((item) => {
         isDirOrFile(item)
           .then(isFileDir => {
@@ -166,16 +154,16 @@ files.copyFiles = (listFiles, destDirPath) => {
                   if (count >= listFiles.length) opCompleted();
                 });
             } else {
-              console.error('Error: Could not copy, must be (file | directory)\n', item);
+              count++;
+              console.error('Error: Could not copy, must be (file | folder)\n', item);
             }
           })
-          .catch(handleErr)
-          .finally(() => {
-            if (count >= listFiles.length) opCompleted();
-          });
+          .catch(handleErr);
       });
+    } else if (listFiles.length < 1) {
+      resolve();
     } else {
-      console.error('Error: It is not an Array of list files\n', listFiles);
+      rejecte(`Error: It is not an Array of list files\n${listFiles}`);
     }
   });
 };
@@ -189,7 +177,7 @@ files.copyFile = (srcFilePath, destDirPath) => {
     const copyIt = () => {
       fsPromises.copyFile(srcFilePath, destFilePath)
         .then(() => {
-          console.log('File copied', destFilePath);
+          console.log('File copied\t', destFilePath);
           resolve();
         })
         .catch(handleErr);
@@ -203,13 +191,15 @@ files.copyFile = (srcFilePath, destDirPath) => {
                 copyIt();
               } else {
                 createDirectory(destDirPath)
-                  .then(() => copyIt())
+                  .then(copyIt())
                   .catch(handleErr);
               }
             })
             .catch(handleErr);
         } else {
-          createDirectory(dirName).then(copyIt()).catch(handleErr);
+          createDirectory(dirName)
+            .then(copyIt())
+            .catch(handleErr);
         }
       })
       .catch(handleErr);
@@ -220,7 +210,7 @@ files.removeFile = (srcFilePath) => {
   return new Promise((resolve) => fsPromises
     .unlink(srcFilePath)
     .then(() => {
-      console.log('File removed', srcFilePath);
+      console.log('File removed\t', srcFilePath);
       resolve();
     })
     .catch(handleErr));
@@ -232,7 +222,7 @@ files.removeDirectory = (dirPath) => {
 
     const opCompleted = () => fsPromises.rmdir(dirPath)
       .then(() => {
-        console.log('Folder removed', dirPath);
+        console.log('Folder removed\t', dirPath);
         resolve(dirPath);
       })
       .catch(handleErr);
@@ -285,7 +275,7 @@ const isDirOrFile = (ItemPath) => {
         } else if (item.isFile()) {
           resolve(FILE);
         } else {
-          rejecte('It\'s not a file or a directory', ItemPath);
+          rejecte('It\'s not a file or a folder', ItemPath);
         }
       })
       .catch(handleErr);
@@ -343,7 +333,7 @@ const createDirectory = (dirPath) => {
         if (!isDirExists) {
           fsPromises.mkdir(dirPath, { recursive: true })
             .then(() => {
-              console.log('Directory created', dirPath);
+              console.log('Folder created\t', dirPath);
               resolve();
             })
             .catch(handleErr);
@@ -358,9 +348,10 @@ const createDirectory = (dirPath) => {
 const getFilesList = (dirPath) => {
   return new Promise((resolve) => fsPromises.readdir(dirPath)
     .then(filesName => {
-      const filesList = filesName.map(fileName => {
+      let filesList = filesName.map(fileName => {
         return path.join(dirPath, fileName);
       });
+      filesList = Array.isArray(filesList) && filesList.length > 0 ? filesList : [];
       resolve(filesList);
     })
     .catch(handleErr));
