@@ -16,8 +16,4 @@ actions.disableIcon = (tabId) => {
   });
 };
 
-function getMagnetLink(){
-  const block = $('div.downloadButtonGroup').find('div[data-sc-params]').attr('data-sc-params');
-}
-
 module.exports = actions;

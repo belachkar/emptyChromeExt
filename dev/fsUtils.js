@@ -5,10 +5,9 @@ const { systemFiles , paths } = require('./config');
 const fsPromises = fs.promises;
 const FILE = systemFiles.FILE;
 const DIR = systemFiles.DIR;
+const handleErr = (err) => console.error(err.message);
 
 const files = {};
-
-const handleErr = (err) => console.error(err.message);
 
 files.removeDistDir = () => {
   return new Promise((resolve) => {
@@ -279,23 +278,6 @@ const isDirOrFile = (ItemPath) => {
         }
       })
       .catch(handleErr);
-  });
-};
-
-const isFileExists = (filePath) => {
-  return new Promise((resolve) => {
-    fsPromises.stat(filePath)
-      .then(() => {
-        isDirOrFile(filePath)
-          .then(isFileDir => {
-            const isFile = isFileDir === FILE ? true : false;
-            resolve(isFile);
-          })
-          .catch(handleErr);
-      })
-      .catch(err => {
-        if (err.code ===  'ENOENT') resolve(false);
-      });
   });
 };
 
