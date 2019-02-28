@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "clean": "node dev/removeDistFolder",
+    "clean-git": "node dev/build -rmGitFolder",
     "build": "node dev/build",
     "build-zip": "node dev/build -zip",
     "clean-local-modules": "npm uninstall eslint"

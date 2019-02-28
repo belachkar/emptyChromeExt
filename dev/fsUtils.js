@@ -168,7 +168,7 @@ files.copyFiles = (listFiles, destDirPath) => {
 };
 
 files.copyFile = (srcFilePath, destDirPath) => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, rejecte) => {
     const dirName = path.dirname(srcFilePath);
     const baseName = path.basename(srcFilePath);
     const destFilePath = path.join(destDirPath, baseName);
@@ -196,9 +196,10 @@ files.copyFile = (srcFilePath, destDirPath) => {
             })
             .catch(handleErr);
         } else {
-          createDirectory(dirName)
-            .then(copyIt())
-            .catch(handleErr);
+          // createDirectory(dirName)
+          //   .then(copyIt())
+          //   .catch(handleErr);
+          rejecte({message: `Error: unable to copythe file: ${destFilePath}\nThe directory ${srcFilePath} dosn't exists`});
         }
       })
       .catch(handleErr);
