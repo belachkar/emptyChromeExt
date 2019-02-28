@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "emptychromeextproject",
   "short_name": "chrm ext prj",
-  "description": "Empty Chrome extencion project to make it easy to start a new project",
+  "description": "Empty Chrome extension project to make it easy to start a new project",
   "version": "0.0.1",
   "icons": {
     "128": "img/img_128.png",
