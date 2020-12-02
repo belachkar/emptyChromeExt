@@ -20,14 +20,11 @@
       "error",
       "windows"
     ],
-    "quotes": [
-      "error",
-      "single"
-    ],
+    "quotes": "off",
     "semi": [
       "error",
       "always"
     ],
-    "no-console":"off"
+    "no-console": "off"
   }
 }

@@ -2,7 +2,12 @@ const path = require('path');
 
 const zipFolder = require('./zipFolder');
 const { fixDependecies } = require('./utils');
-const { copyDirs, copyFiles, removeDistDir, removeDirectory } = require('./fsUtils');
+const {
+  copyDirs,
+  copyFiles,
+  removeDistDir,
+  removeDirectory,
+} = require('./fsUtils');
 const { getProjectName } = require('./utils');
 const { directories, files, options, paths, prj } = require('./config');
 
@@ -10,9 +15,13 @@ let projectName = '';
 let makeZip = options.makeZip;
 let removeGitFolder = false;
 const dirsPathSrc = path.join(__dirname, '..');
-const filesPaths = files.map(fileName => path.join(dirsPathSrc, fileName));
+const filesPaths = files.map((fileName) => path.join(dirsPathSrc, fileName));
 const makeAppDir = options.createAppDir ? 'app' : '';
-let DestProjectDirPath = path.join(paths.distDir(), prj.defaultName, makeAppDir);
+let DestProjectDirPath = path.join(
+  paths.distDir(),
+  prj.defaultName,
+  makeAppDir
+);
 let destJsDirPath = path.join(DestProjectDirPath, paths.jsExt());
 const handleErr = (err) => console.error(err.message);
 
@@ -38,7 +47,7 @@ build.init = (callback) => {
     } else if (err) {
       console.error(err.message);
       console.log('Project Name to default:', projectName);
-    } 
+    }
     editProjectNameDependencies();
     callback();
   });
@@ -48,16 +57,25 @@ build.prjDir = () => {
   build.init(() => {
     if (!removeGitFolder) {
       console.log('\n\n### Building project \t"', projectName, '"\n');
-      console.log('## Removing the distribution directory\n->', paths.distDir(), '\n');
+      console.log(
+        '## Removing the distribution directory\n->',
+        paths.distDir(),
+        '\n'
+      );
       removeDistDir(paths.distDir())
         .then(() => {
           console.log('\tDistribution directory removed\n\n');
-          console.log('## Creating the new folder project\n->', DestProjectDirPath, '\n');
+          console.log(
+            '## Creating the new folder project\n->',
+            DestProjectDirPath,
+            '\n'
+          );
           console.log('\n# Copying the directories\n', directories, '\n');
           copyDirs(directories, dirsPathSrc, DestProjectDirPath)
             .then(() => {
               console.log('\tDirectories copied\n');
-              if (filesPaths.length > 0) console.log('# Copying the files\n', filesPaths, '\n');
+              if (filesPaths.length > 0)
+                console.log('# Copying the files\n', filesPaths, '\n');
               copyFiles(filesPaths, DestProjectDirPath)
                 .then(() => {
                   if (filesPaths.length > 0) console.log('# Files copied\n');
@@ -72,10 +90,14 @@ build.prjDir = () => {
                     })
                     .catch(handleErr)
                     .finally(() => {
-                      if(makeZip) {
-                        console.log('\n# Creating zip file for Firefox browser compatibility');
+                      if (makeZip) {
+                        console.log(
+                          '\n# Creating zip file for Firefox browser compatibility'
+                        );
                         zipFolder(DestProjectDirPath)
-                          .then(() => console.log('==> Generating Zip file succeed\n'))
+                          .then(() =>
+                            console.log('==> Generating Zip file succeed\n')
+                          )
                           .catch(handleErr);
                       }
                     });
@@ -94,13 +116,14 @@ build.prjDir = () => {
 
 build.removeGit = (gitFolderFath) => {
   removeDirectory(gitFolderFath)
-    .then(() => console.log(`
---------\  .git Removed
+    .then(() =>
+      console.log(`
+--------\\  .git Removed
 |  ".git" folder removed successfully,
-|  To initialize a new git project run the command :  
+|  To initialize a new git project run the command :
 |  git init
- ------------\
-    `))
+ ------------\\`)
+    )
     .catch(handleErr);
 };
 
