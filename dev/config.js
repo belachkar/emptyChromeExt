@@ -14,6 +14,7 @@ cfg.prj = {
 cfg.options = {
   createAppDir: false,
   makeZip: true,
+  removeGitFolder: false,
 };
 cfg.paths = {
   distDir: () => path.join(__dirname, '..', cfg.distDirName),

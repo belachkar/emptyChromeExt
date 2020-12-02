@@ -2,7 +2,7 @@
   "json.schemas": [
     {
       "fileMatch": [
-        "/manifest.json"
+        "/app/manifest.json"
       ],
       "url": "/schemas/chrome-manifest_schema.json"
     },

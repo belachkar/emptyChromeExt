@@ -13,15 +13,18 @@ const { directories, files, options, paths, prj } = require('./config');
 
 let projectName = '';
 let makeZip = options.makeZip;
-let removeGitFolder = false;
+let removeGitFolder = options.removeGitFolder;
+const makeAppDir = options.createAppDir;
+
 const dirsPathSrc = path.join(__dirname, '..');
 const filesPaths = files.map((fileName) => path.join(dirsPathSrc, fileName));
-const makeAppDir = options.createAppDir ? 'app' : '';
+
 let DestProjectDirPath = path.join(
   paths.distDir(),
   prj.defaultName,
-  makeAppDir
+  makeAppDir ? 'app' : ''
 );
+
 let destJsDirPath = path.join(DestProjectDirPath, paths.jsExt());
 const handleErr = (err) => console.error(err.message);
 
@@ -32,10 +35,16 @@ build.init = (callback) => {
     makeZip = arg === '-zip' || arg === '-z' || arg === '-Z' ? true : makeZip;
     removeGitFolder = arg === '-rmGitFolder' ? true : removeGitFolder;
   });
+
   const editProjectNameDependencies = () => {
-    DestProjectDirPath = path.join(paths.distDir(), projectName, makeAppDir);
+    DestProjectDirPath = path.join(
+      paths.distDir(),
+      projectName,
+      makeAppDir ? 'app' : ''
+    );
     destJsDirPath = path.join(DestProjectDirPath, paths.jsExt());
   };
+
   getProjectName((err, prjName) => {
     projectName = prjName;
     if (!projectName) {
